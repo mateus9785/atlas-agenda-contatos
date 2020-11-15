@@ -969,7 +969,7 @@
 
   var PRODUCTION = function () {
     try {
-      return process.env.NODE_ENV === 'production';
+      return process.env.REACT_APP_NODE_ENV === 'production';
     } catch (e) {
       return false;
     }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 
 import Swal from 'sweetalert2';
 
@@ -11,6 +11,8 @@ import {
   InputGroupAddon,
   Button,
   Table,
+  InputGroupText,
+  Input,
 } from "reactstrap";
 
 import api from "config/api";
@@ -18,8 +20,15 @@ import Page from "components/Page";
 import AutoSuggest from "components/AutoSuggest";
 import errorRequest from "common/errorRequest";
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 function Contacts() {
+  const query = useQuery();
   const history = useHistory();
+  const [idGroup, setIdGroup] = useState(query.get("idGroup"));
+  const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(false);
   const [contacts, setContacts] = useState([]);
   const [search, setSearch] = useState("");
@@ -28,13 +37,25 @@ function Contacts() {
   const [page, setPage] = useState(1);
   const limit = 5;
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchSuggestionContact();
+    fetchGroup();
   }, [])
 
   useEffect(() => {
-    fetchContacts();
+    fetchContacts(idGroup);
   }, [page]);
+
+  async function fetchGroup() {
+    setLoading(true);
+    try {
+      const { data } = await api.get(`/group`);
+      setGroups(data.data);
+    } catch (error) {
+      errorRequest(history, error);
+    }
+    setLoading(false);
+  }
 
   const lastContactListElementRef = createRefElement();
   const lastContactTableElementRef = createRefElement();
@@ -65,11 +86,17 @@ function Contacts() {
     setLoading(false);
   }
 
-  async function fetchContacts(reset = false) {
+  async function fetchContacts(idGroup, reset = false) {
     setLoading(true);
     try {
-      const { data } = await api.get(`/contact/paginate?limit=${limit}&offset=${page - 1}&search=${search}`);
-      if(reset)
+      const params = { 
+        limit,
+        offset: page - 1,
+        search,
+        idGroup,
+      }
+      const { data } = await api.get(`/contact/paginate`, { params });
+      if (reset)
         setContacts(data.data);
       else
         setContacts(contacts => [...contacts, ...data.data]);
@@ -85,7 +112,7 @@ function Contacts() {
     setLoading(false);
   }
 
-  function letterWithoutAccent(letter){
+  function letterWithoutAccent(letter) {
     const withAccent = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝŔÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿŕ";
     const withoutAccent = "AAAAAAACEEEEIIIIDNOOOOOOUUUUYRsBaaaaaaaceeeeiiiionoooooouuuuybyr";
     const position = withAccent.indexOf(letter);
@@ -121,6 +148,12 @@ function Contacts() {
     })
   }
 
+  async function changeGroup(idGroup){
+    setIdGroup(idGroup);
+    await fetchContacts(idGroup, true);
+    history.push(`/admin/contacts?idGroup=${idGroup}`)
+  }
+
   return (
     <Page loading={loading}>
       <>
@@ -129,19 +162,42 @@ function Contacts() {
             <InputGroup>
               <AutoSuggest
                 value={search}
-                onChange={(_, { newValue })=> setSearch(newValue)}
+                onChange={(_, { newValue }) => setSearch(newValue)}
                 arraySuggestions={suggestions}
                 onKeyDown={(e) => {
                   if (e.keyCode === 13) {
-                    fetchContacts(true);
+                    fetchContacts(idGroup, true);
                   }
                 }}
               />
               <InputGroupAddon color="primary" addonType="append">
                 <Button className="table-search-button">
-                  <i className="fas fa-search" onClick={() => fetchContacts(true)} />
+                  <i className="fas fa-search" onClick={() => fetchContacts(idGroup, true)} />
                 </Button>
               </InputGroupAddon>
+            </InputGroup>
+          </Col>
+          <Col md="4">
+            <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>
+                  <i className="fas fa-users" />
+                </InputGroupText>
+              </InputGroupAddon>
+              <Input
+                id="inputGroup"
+                type="select"
+                value={idGroup}
+                onChange={(e) => changeGroup(e.target.value)}
+              >
+                <option key="group-0" value="">Todos os grupos</option>
+                {
+                  groups && groups.length > 0 &&
+                  groups.map((group) =>
+                    <option key={"group-" + group.idGroup} value={group.idGroup}>{group.name}</option>
+                  )
+                }
+              </Input>
             </InputGroup>
           </Col>
           <Col md="12" className="d-none d-md-table">
@@ -177,20 +233,21 @@ function Contacts() {
                         </td>
                         <td className="TableTd">{contact.name}</td>
                         <td className="TableTd">
-                          <div
+                          <Button
                             className="table-action-button-info"
                             onClick={() => history.push(`/admin/contact?idContact=${contact.idContact}`)}
                           >
                             <i className="fas fa-edit" />
-                          </div>
+                          </Button>
                         </td>
                         <td className="TableTd">
-                          <div
+                          <Button
+                            disabled={contact.isUserContact}
                             className="table-action-button-danger"
                             onClick={(e) => deleteContact(e, contact.idContact)}
                           >
                             <i className="fas fa-trash-alt"></i>
-                          </div>
+                          </Button>
                         </td>
                       </tr>
                     ))
@@ -215,14 +272,13 @@ function Contacts() {
                         </Col>
                         <Col xs="4" className="buttons-content p-0">
                           <Button
-                            disabled={!contact.idUser}
                             className="table-action-button-info"
                             onClick={() => history.push(`/admin/contact?idContact=${contact.idContact}`)}
                           >
                             <i className="fas fa-edit" />
                           </Button>
                           <Button
-                            disabled={!contact.idUser}
+                            disabled={contact.isUserContact}
                             className="table-action-button-danger"
                             onClick={(e) => deleteContact(e, contact.idContact)}
                           >

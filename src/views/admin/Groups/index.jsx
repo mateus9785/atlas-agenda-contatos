@@ -147,14 +147,15 @@ function Groups() {
               </thead>
               <tbody>
                 {
-                  groups && groups.length > 0 ?
-                    groups.map((group) => (
+                  groups && groups.length === 0 ?
+                    <tr><td className="text-center" colSpan="4">Nenhum registro foi encontrado...</td></tr> :
+                    groups.map((group) =>
                       <tr key={group.idGroup}>
                         <td>{group.name + " (" + group.ContactGroups.length + ")"}</td>
                         <td>
                           <Button
                             className="table-action-button-success"
-                            onClick={() => history.push(`/admin/contacts`)}
+                            onClick={() => history.push(`/admin/contacts?idGroup=${group.idGroup}`)}
                           >
                             <i className="fas fa-eye" />
                           </Button>
@@ -178,15 +179,14 @@ function Groups() {
                           </Button>
                         </td>
                       </tr>
-                    )) :
-                    <tr><td colSpan="4">Nenhum registro foi encontrado...</td></tr>
+                    )
                 }
               </tbody>
             </Table>
             <ul style={{ listStyle: "none" }} className="d-md-none pl-0 mt-3" >
               {
                 groups && groups.length === 0 ?
-                  <li className="mt-3">Nenhum registro foi encontrado...</li> :
+                  <li className="mt-3 text-center">Nenhum registro foi encontrado...</li> :
                   groups.map((group) => (
                     <li key={group.idGroup}>
                       <Row className="d-flex justify-content-between">
@@ -197,19 +197,19 @@ function Groups() {
                         <Col xs="7" className="buttons-content">
                           <Button
                             className="table-action-button-success"
-                            onClick={() => history.push(`/admin/contacts`)}
+                            onClick={() => history.push(`/admin/contacts?idGroup=${group.idGroup}`)}
                           >
                             <i className="fas fa-eye" />
                           </Button>
                           <Button
-                            disabled={!group.idUser}
+                            disabled={!group.idUser || idGroup}
                             className="table-action-button-info"
                             onClick={(e) => editeGroup(e, group)}
                           >
                             <i className="fas fa-edit" />
                           </Button>
                           <Button
-                            disabled={!group.idUser}
+                            disabled={!group.idUser || idGroup}
                             className="table-action-button-danger"
                             onClick={(e) => deleteGroup(e, group.idGroup)}
                           >

@@ -52,6 +52,41 @@ export default function Contact() {
   const [groups, setGroups] = useState([]);
   const [groupList, setGroupList] = useState([]);
   const [addresses, setAddresses] = useState([]);
+  const [image, setImage] = useState({});
+  const [deletedImage, setDeletedImage] = useState(false);
+
+  async function addImage(event) {
+    event.preventDefault();
+    if (!event.target.files || !event.target.files.length) return;
+
+    let file = event.target.files[0];
+
+    setImage({
+      name: file.name,
+      file,
+      urlImage: URL.createObjectURL(file),
+    });
+  }
+
+  async function deleteImage(event) {
+    event.preventDefault();
+
+    Swal.fire({
+      title: "Atenção",
+      text: "Deseja realmente excluir essa imagem?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sim!",
+    }).then(async (result) => {
+      if (result.value) {
+        setImage({});
+        setDeletedImage(true);
+        document.getElementById("contact-image").value = "";
+      }
+    });
+  }
 
   async function buscaCep() {
     setLoading(true);
@@ -92,6 +127,7 @@ export default function Contact() {
     try {
       const { data } = await api.get(`/contact/${idContact}`);
 
+      console.log(data.data)
       setName(data.data.name);
       setAddresses(data.data.Addresses);
       if (data.data.Phones.length)
@@ -102,6 +138,9 @@ export default function Contact() {
         setGroups(data.data.ContactGroups.map(contactGruop => {
           return { type: 'group-creatable', label: contactGruop.Group.name, value: contactGruop.Group.name, }
         }));
+      setImage({
+        urlImage: data.data.urlContactImage,
+      });
     } catch (error) {
       errorRequest(history, error);
     }
@@ -170,10 +209,31 @@ export default function Contact() {
 
     setLoading(true);
     try {
-      const data = {
-        name, phones: phones.map(x => { return { name: x.value } }),
-        addresses, groups: groups.map(x => { return { name: x.value } })
-      }
+      const data = new FormData();
+
+      data.append("name", name);
+      phones.forEach(phone => {
+        data.append("phones[]", JSON.stringify({ name: phone.value }));
+      });
+      addresses.forEach(address => {
+        data.append("addresses[]", JSON.stringify({
+          street: address.street,
+          number: address.number,
+          neighborhood: address.neighborhood,
+          city: address.city,
+          province: address.province,
+          cep: address.cep,
+          complement: address.complement,
+        }));
+      });
+      groups.forEach(group => {
+        data.append("groups[]", JSON.stringify({ name: group.value }));
+      });
+      if(image.file)
+        data.append("file", image.file);
+      if (idContact)
+        data.append("deletedImage", deletedImage);
+
 
       if (idContact)
         await api.put(`/contact/${idContact}`, data);
@@ -218,6 +278,39 @@ export default function Contact() {
                   />
                 </InputGroup>
               </FormGroup>
+            </Col>
+            <Col className="col-6">
+              <span className="mt-3 home-title-adm mb-3">
+                Imagem de perfil:
+              </span>
+              <Row>
+                <Col className="d-flex">
+                  <div className="user-profile-preview-image mr-3">
+                    {
+                      image.urlImage &&
+                      <span
+                        className="user-profile-preview-image-delete"
+                        onClick={(e) => deleteImage(e)}
+                      >
+                        <i className="fas fa-times" />
+                      </span>
+                    }
+                    {
+                      image.urlImage &&
+                      <div className="table-image-contact">
+                        <img alt="imagem enviada" className="image-contact" src={image.urlImage} />
+                      </div>
+                    }
+                  </div>
+                  <div className="user-profile-image mt-4 mb-2">
+                    <input
+                      id="contact-image"
+                      type="file"
+                      onChange={(e) => addImage(e, true)}
+                    />
+                  </div>
+                </Col>
+              </Row>
             </Col>
           </Row>
           <Row>

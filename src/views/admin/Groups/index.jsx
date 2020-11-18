@@ -114,7 +114,7 @@ function Groups() {
     <Page loading={loading}>
       <>
         <Row className="mb-4">
-          <Col md="4" xs="12" className="d-flex justify-content-end mt-2">
+          <Col md="5" xs="12" className="d-flex justify-content-end mt-2">
             <Input
               placeholder="Nome do Grupo"
               value={name}
@@ -123,20 +123,16 @@ function Groups() {
             />
           </Col>
           <Col md="6" xs="12" className="d-flex mt-2">
-            <Button color="success" onClick={(e) => saveGroup(e)}>Salvar</Button>
+            <Button color="success" className="col-6" onClick={(e) => saveGroup(e)}>Salvar</Button>
             {
               idGroup &&
-              <Button color="danger" onClick={(e) => cancelEdition(e)}>Cancelar</Button>
+              <Button color="danger" className="col-6" onClick={(e) => cancelEdition(e)}>Cancelar</Button>
             }
           </Col>
         </Row>
         <Row>
           <Col>
-            <Table
-              className="d-none d-md-table"
-              responsive
-              striped
-            >
+            <Table className="d-none d-md-table" responsive striped>
               <thead>
                 <tr>
                   <th className="TableTh">Nome</th>
@@ -162,7 +158,7 @@ function Groups() {
                         </td>
                         <td>
                           <Button
-                            disabled={!group.idUser || idGroup}
+                            disabled={!group.idUser || !!idGroup}
                             className="table-action-button-info"
                             onClick={(e) => editeGroup(e, group)}
                           >
@@ -171,7 +167,7 @@ function Groups() {
                         </td>
                         <td>
                           <Button
-                            disabled={!group.idUser || idGroup}
+                            disabled={!group.idUser || !!idGroup}
                             className="table-action-button-danger"
                             onClick={(e) => deleteGroup(e, group.idGroup)}
                           >
@@ -202,14 +198,14 @@ function Groups() {
                             <i className="fas fa-eye" />
                           </Button>
                           <Button
-                            disabled={!group.idUser || idGroup}
+                            disabled={!group.idUser || !!idGroup}
                             className="table-action-button-info"
                             onClick={(e) => editeGroup(e, group)}
                           >
                             <i className="fas fa-edit" />
                           </Button>
                           <Button
-                            disabled={!group.idUser || idGroup}
+                            disabled={!group.idUser || !!idGroup}
                             className="table-action-button-danger"
                             onClick={(e) => deleteGroup(e, group.idGroup)}
                           >

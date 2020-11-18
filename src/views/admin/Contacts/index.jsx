@@ -27,7 +27,7 @@ function useQuery() {
 function Contacts() {
   const query = useQuery();
   const history = useHistory();
-  const [idGroup, setIdGroup] = useState(query.get("idGroup"));
+  const [idGroup, setIdGroup] = useState(query.get("idGroup") ? query.get("idGroup") : "");
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(false);
   const [contacts, setContacts] = useState([]);
@@ -89,7 +89,7 @@ function Contacts() {
   async function fetchContacts(idGroup, reset = false) {
     setLoading(true);
     try {
-      const params = { 
+      const params = {
         limit,
         offset: page - 1,
         search,
@@ -148,7 +148,7 @@ function Contacts() {
     })
   }
 
-  async function changeGroup(idGroup){
+  async function changeGroup(idGroup) {
     setIdGroup(idGroup);
     await fetchContacts(idGroup, true);
     history.push(`/admin/contacts?idGroup=${idGroup}`)
@@ -158,7 +158,7 @@ function Contacts() {
     <Page loading={loading}>
       <>
         <Row className="mb-4">
-          <Col md="4">
+          <Col md="7" xs="12" className="mb-2">
             <InputGroup>
               <AutoSuggest
                 value={search}
@@ -177,8 +177,8 @@ function Contacts() {
               </InputGroupAddon>
             </InputGroup>
           </Col>
-          <Col md="4">
-            <InputGroup>
+          <Col md="5" xs="12" className="mb-2">
+            <InputGroup className="col-xs-6">
               <InputGroupAddon addonType="prepend">
                 <InputGroupText>
                   <i className="fas fa-users" />
@@ -228,7 +228,11 @@ function Contacts() {
                       <tr key={contact.idContact} ref={contacts.length === index + 1 ? lastContactTableElementRef : null}>
                         <td className="TableTd table-adm-td">
                           <div className="table-image-contact">
-                            <span className="contact-name-letter">{letterWithoutAccent(contact.name[0]).toUpperCase()}</span>
+                            {
+                              contact.nameFile ?
+                                <img className="table-image-contact" src={contact.urlContactImage} alt="avatar"></img> :
+                                <span className="contact-name-letter">{letterWithoutAccent(contact.name[0]).toUpperCase()}</span>
+                            }
                           </div>
                         </td>
                         <td className="TableTd">{contact.name}</td>
@@ -257,13 +261,17 @@ function Contacts() {
             <ul style={{ listStyle: "none" }} className="d-md-none pl-0 mt-3" >
               {
                 contacts && contacts.length === 0 ?
-                  <li className="mt-3">Nenhum registro foi encontrado...</li> :
+                  <li className="mt-3 text-center">Nenhum registro foi encontrado...</li> :
                   contacts.map((contact, index) => (
                     <li key={contact.idContact} ref={contacts.length === index + 1 ? lastContactListElementRef : null}>
                       <Row className="d-flex justify-content-between">
                         <Col xs="8" className="d-flex p-0">
                           <div className="list-image-contact mt-1">
-                            <span className="contact-name-letter">{letterWithoutAccent(contact.name[0]).toUpperCase()}</span>
+                            {
+                              contact.nameFile ?
+                                <img className="list-image-contact" src={contact.urlContactImage} alt="avatar"></img> :
+                                <span className="contact-name-letter">{letterWithoutAccent(contact.name[0]).toUpperCase()}</span>
+                            }
                           </div>
                           <div className="pl-1">
                             <strong>Nome:</strong><br />

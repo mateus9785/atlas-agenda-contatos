@@ -7,8 +7,6 @@ body {
   border-color: #fb6a40 !important;
 }
 
-//Botões
-
 .button-primary {
   border: none;
   background: #fb6a40;
@@ -116,4 +114,13 @@ p {
 
 .table-action-button-success {
   background-color: #2dce89;
+}
+
+.link-like-button{
+  background-color:#5e72e4;
+  color: #FFFFFF;
+  padding: 14px 25px;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 10px;
 }

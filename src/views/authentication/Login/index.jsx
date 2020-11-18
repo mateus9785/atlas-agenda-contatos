@@ -50,6 +50,9 @@ export default function Login() {
       localStorage.setItem("token", data.data.token);
       localStorage.setItem("name", data.data.name);
       localStorage.setItem("idUser", data.data.idUser);
+      localStorage.setItem("stage", data.data.stage);
+      localStorage.setItem("client_id", data.data.client_id);
+      localStorage.setItem("redirect_uri", data.data.redirect_uri);
 
       history.push("/admin/contacts");
     } catch (error) {

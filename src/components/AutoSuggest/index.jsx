@@ -3,7 +3,7 @@ import Autosuggest from 'react-autosuggest';
 
 import "./style.scss"
 
-export default function AutoSuggest({ arraySuggestions, onChange, onKeyDown, value }) {
+export default function AutoSuggest({ arraySuggestions, onChange, onKeyDown, value, className, }) {
   const [suggestions, setSuggestions] = useState([]);
 
   const inputProps = {

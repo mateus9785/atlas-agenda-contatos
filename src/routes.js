@@ -2,6 +2,7 @@ import Contacts from "views/admin/Contacts/index.jsx";
 import Contact from "views/admin/Contacts/Contact/index.jsx";
 import Groups from "views/admin/Groups/index.jsx";
 import UserProfile from "views/admin/UserProfile";
+import ImportContact from "views/admin/ImportContact";
 
 var routes = [
   {
@@ -28,6 +29,13 @@ var routes = [
     name: "Grupos",
     icon: "fas fa-users",
     component: Groups,
+    layout: "/admin",
+  },
+  {
+    path: "/import-contact",
+    name: "Importar",
+    icon: "fas fa-file-import",
+    component: ImportContact,
     layout: "/admin",
   },
 ];

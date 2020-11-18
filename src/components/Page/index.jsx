@@ -13,12 +13,11 @@ import {
 
 import Header from "components/Header";
 
-export default function NewCampaign({
+export default function Page({
   children,
   classNameCSS,
   loading,
   border,
-  Button,
 }) {
   const childrenHeader = children && children.length > 1 ? children[0] : "";
   const childrenBody = children && children.length > 1 ? children[1] : children;
@@ -34,12 +33,6 @@ export default function NewCampaign({
               {
                 childrenHeader &&
                 <CardHeader className="bg-transparent">
-                  <Button
-                    color="link"
-                    className="text-7m"
-                  >
-                    Conta Azul
-                  </Button>
                   {childrenHeader}
                 </CardHeader>
               }

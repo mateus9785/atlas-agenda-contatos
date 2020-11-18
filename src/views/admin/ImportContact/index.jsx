@@ -1,6 +1,5 @@
-import React from "react";
-
-import Page from "components/Page";
+import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 
 import {
   Row,
@@ -8,10 +7,39 @@ import {
   Table,
 } from "reactstrap";
 
+import api from "config/api";
+import Page from "components/Page";
+import errorRequest from "common/errorRequest";
+import CustomPagination from "components/CustomPagination";
+
 function ImportContact() {
   var client_id = localStorage.getItem('client_id');
   var redirect_uri = localStorage.getItem('redirect_uri');
   var state = localStorage.getItem('state');
+  var contaAzulAuthenticated = localStorage.getItem('contaAzulAuthenticated');
+  const history = useHistory();
+  const [loading, setLoading] = useState(false);
+  const [total, setTotal] = useState();
+  const [customers, setCustomers] = useState([]);
+  const [page, setPage] = useState(1);
+  const limit = 5;
+
+  useEffect(() => {
+    if (contaAzulAuthenticated)
+      fetchCustomers();
+  }, [])
+
+  async function fetchCustomers() {
+    setLoading(true);
+    try {
+      const { data } = await api.get(`/conta-azul/customer/paginate?limit=${limit}&offset=${page - 1}`);
+      setCustomers(data.data);
+      setTotal(data.pagination.total);
+    } catch (error) {
+      errorRequest(history, error);
+    }
+    setLoading(false);
+  }
 
   return (
     <Page>

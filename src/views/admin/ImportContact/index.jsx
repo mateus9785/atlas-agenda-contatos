@@ -10,7 +10,6 @@ import {
 import api from "config/api";
 import Page from "components/Page";
 import errorRequest from "common/errorRequest";
-import CustomPagination from "components/CustomPagination";
 
 function ImportContact() {
   var client_id = localStorage.getItem('client_id');
@@ -19,22 +18,17 @@ function ImportContact() {
   var contaAzulAuthenticated = localStorage.getItem('contaAzulAuthenticated');
   const history = useHistory();
   const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState();
-  const [customers, setCustomers] = useState([]);
-  const [page, setPage] = useState(1);
   const limit = 5;
 
   useEffect(() => {
-    if (contaAzulAuthenticated)
+    if (contaAzulAuthenticated === true || contaAzulAuthenticated === "true")
       fetchCustomers();
   }, [])
 
   async function fetchCustomers() {
     setLoading(true);
     try {
-      const { data } = await api.get(`/conta-azul/customer/paginate?limit=${limit}&offset=${page - 1}`);
-      setCustomers(data.data);
-      setTotal(data.pagination.total);
+      await api.get(`/conta-azul/customer/paginate?limit=${limit}`);
     } catch (error) {
       errorRequest(history, error);
     }
@@ -42,7 +36,7 @@ function ImportContact() {
   }
 
   return (
-    <Page>
+    <Page loading={loading}>
       <>
         <Col md="12" className="d-flex justify-content-end">
           <a
